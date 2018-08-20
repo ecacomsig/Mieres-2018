@@ -9,3 +9,6 @@ Instructions:
 4. Submit a Pull Request and share it with ECACOMSIG
 
 *This repository is public, please don't include sensitive data.*
+
+In case it is useful to you, here is a link to Simon's group git workflow instructions:
+https://github.com/Billingegroup/group_git_workflow
