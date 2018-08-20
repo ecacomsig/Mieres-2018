@@ -12,3 +12,8 @@ Approach:
  Log:
  1. working on a bug....``live_plot`` won't install ``node_style`` and we have no
  idea why....
+ 
+ Diffpy development Python 3 install instructions:
+ ```
+ conda install -c diffpy/channel/dev -c diffpy diffpy-cmi
+ ```
