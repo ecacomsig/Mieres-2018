@@ -45,7 +45,7 @@ for blur in blurs:
         total = s11.data.copy()
     else:
         total = np.concatenate((total, s11.data), axis=1)
-        
+
 s = hs.signals.Signal1D(total)
 s.metadata.General.title = 'Two gaussians'
 
@@ -61,6 +61,6 @@ s.axes_manager[2].name = "eV"
 s.axes_manager[2].scale = 0.1
 
 a = s.inav[5,5].data
-np.savetxt(X=a, fname="two_peaks", delimiter=',')
-b = s.inav[10:20,:].data
-np.savetxt(X=a, fname="peaks_moving_smoothly", delimiter=',')
+x = np.linspace(0, 100, 1024)
+a = np.vstack((x, a))
+np.savetxt(X=a.T, fname="../data/two_peaks.txt", delimiter=',')
