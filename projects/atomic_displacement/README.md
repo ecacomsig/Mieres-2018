@@ -1,0 +1,1 @@
+Project is aiming at introducing anharmonic atomic displacement description into existing refinement code for small molecules. Olex2 is targeted via cctbx code modification.  
