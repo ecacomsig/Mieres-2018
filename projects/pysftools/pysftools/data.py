@@ -1,6 +1,3 @@
-#!/usr/bin/env cctbx.python
-
-__author__ = "Adam Simpkin & Felix Simkovic"
 
 from cctbx import crystal
 from cctbx import miller
@@ -14,6 +11,7 @@ class ReflectionData(object):
     def __init__(self, reflection_file):
         self.reflection_file = reflection_file
         self.reflection_data = reflection_file_reader.any_reflection_file(file_name=reflection_file)
+        self.miller_arrays = self.reflection_data.as_miller_arrays()
 
     def get(self, labels):
         for m_a in self.miller_arrays:
@@ -34,22 +32,16 @@ class ReflectionData(object):
         for m_a in self.miller_arrays:
             if not looks_like_r_free_flags_info(m_a.info()):
                 m_a.change_symmetry(sg)
-
-    def checkhkl(self):
-        def unique_reflections(m_a):
-            indices = m_a.indices()
-            return len({tuple(r) for r in indices.as_vec3_double()}) == indices.size()
-
-        # return all(unique_reflections(m_a) for m_a in self.miller_arrays)
-
-        self.miller_arrays[0].show_comprehensive_summary()
-
-        self.miller_arrays[0].analyze_intensity_statistics().show()
+    
+    def write(self, fname):
+        if len(self.miller_arrays) < 1:
+            raise ValueError('Need more than 0 Miller array(s)')
+        base = self.miller_arrays[0]
+        dataset = base.as_mtz_dataset(base.info().labels[0])
+        for m_a in self.miller_arrays[1:]:
+            dataset.add_miller_array(m_a, m_a.info().labels[0])
+        dataset.mtz_object().write(file_name=fname)
 
     @property
     def labels(self):
         return [m_a.info().labels for m_a in self.miller_arrays]
-
-    @property
-    def miller_arrays(self):
-        return self.reflection_data.as_miller_arrays()
