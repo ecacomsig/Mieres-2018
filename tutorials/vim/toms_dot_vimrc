@@ -1,0 +1,115 @@
+" Tom's vimrc
+
+set nocompatible
+set wildmenu
+set laststatus=2
+set timeoutlen=50
+set updatetime=1500
+filetype plugin on
+set autoindent
+filetype indent on
+nnoremap ; :
+set hlsearch
+set directory=~/.vim/swap
+set undodir=~/.vim/undo
+set undofile
+"set backupdir=~/.vim/backup
+
+" Colour scheme
+set t_Co=256
+colorscheme slate
+hi Comment term=bold ctermfg=DarkCyan guifg=#80a0ff
+syntax on
+
+" Lots of plugins
+set runtimepath^=~/.vim/bundle/vim-bbye
+set runtimepath^=~/.vim/bundle/ctrlp.vim
+set runtimepath^=~/.vim/bundle/vim-airline
+set runtimepath^=~/.vim/bundle/vim-gitgutter
+
+" Airline stuff
+let g:airline#extensions#tabline#enabled=1
+let g:airline_theme='dark'
+let airline#extensions#whitespace#mixed_indent_algo=1
+let g:airline_powerline_fonts = 1
+
+" GitGutter stuff
+set signcolumn=yes
+highlight SignColumn ctermbg=232
+highlight GitGutterAdd ctermbg=232 ctermfg=green
+highlight GitGutterChange ctermbg=232
+highlight GitGutterDelete ctermbg=232 ctermfg=red
+highlight GitGutterChangeDelete ctermbg=232
+
+" Buffers and tabs and stuff
+set hidden
+nnoremap <S-down> :bn<cr>
+nnoremap <S-up> :bp<cr>
+nnoremap < <C-W>W
+nnoremap > <C-W>w
+nnoremap <space> zz
+
+" Switch to/from terminal with Ctrl+D
+:nnoremap <C-d> :sh<cr>
+
+" Highlight overly long lines,
+" one of two possible ways depending on Vim version
+if exists('+colorcolumn')
+	set colorcolumn=81,101,121
+	highlight ColorColumn ctermbg=233
+else
+	au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+')
+endif
+
+" Line numbers, switchable absolute/relative
+set number
+function! NToggle()
+	if(&relativenumber == 1)
+		set norelativenumber
+		set number
+	else
+		set relativenumber
+	endif
+endfunc
+nnoremap <C-n> :call NToggle()<cr>
+
+function! FCleanGeom()
+	:g/\/clen/de
+	:g/\/adu_per_eV/d
+	:g/\/no_index\ =\ 0/d
+	:g/\/peak_sep/d
+	:g/\/res/d
+	:g/\/badrow_direction/d
+endfunc
+command CGeom :call FCleanGeom()
+
+function! FStripSpace()
+	:%s/\s\+$//
+endfunc
+command StripSpace :call FStripSpace()
+
+" Mappings for line breaking etc
+nnoremap _ :.g/./normal gqq<cr>:nohl<cr>
+nnoremap - :nohl<cr>
+nnoremap <C-J> Lj<C-O>
+nnoremap <C-K> Hk<C-O>
+
+" Per-file vimrc
+augroup ThisFile
+	autocmd!
+	autocmd BufRead,BufNew /home/taw/Documents/My\ Papers/Papers source /home/taw/Documents/My\ Papers/papercols
+augroup END
+
+" Function keys
+nnoremap <F2> :!make -j<CR>
+nnoremap <F4> :Bdelete<CR>
+nnoremap <F5> :buffers<CR>:buffer<Space>
+nnoremap <F6> :1,$g/./normal .<CR>
+nnoremap <F8> :setl noai nocin nosi inde=<CR>
+nnoremap <F9> :noremap k gk<cr>:noremap j gj<cr>:noremap 0 g0<cr>:noremap $ g$<cr>
+nnoremap <F10> :StripSpace<cr><C-O>
+
+augroup git_commit
+    autocmd!
+    autocmd BufReadPost if &filetype == 'gitcommit' execute 'normal gg' endif
+augroup end
