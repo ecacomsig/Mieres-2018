@@ -88,49 +88,57 @@ if __name__ == '__main__':
 
   compute_cost = CostFunction(participant_tutorials)
 
-  min_cost = None
-  best_schedule = None
+  min_cost = 1e10
+  best_schedule = []
   try:
     for num_iter in range(1000000):
       schedule = gen_random_schedule(tutorial_index, n_slots, n_sessions)
       cost = compute_cost(schedule)
-      if best_schedule is None or cost < min_cost:
+      if cost < min_cost:
         min_cost = cost
-        best_schedule = schedule
-      print i, min_cost
-      if cost == 0:
-        break
+        best_schedule = [schedule]
+      elif cost == min_cost:
+        min_cost = cost
+        best_schedule.append(schedule)
+      print num_iter, min_cost, len(best_schedule)
+      # if cost == 0:
+      #   break
   except KeyboardInterrupt:
     print ""
 
+
+  best_schedule = list(np.array(t) for t in set([tuple(map(tuple, sort_schedule(s))) for s in
+                            best_schedule]))
+  print ""
   print "Num iterations: ", num_iter
+  print "Num schedules: ", len(best_schedule)
+  print "Best Schedules:"
+  for schedule in best_schedule:
+    print "----------"
+    print ""
+    print schedule
+    print "Cost: ", compute_cost(schedule)
 
-  best_schedule = sort_schedule(best_schedule)
-  print ""
-  print "Best Schedule:"
-  print best_schedule
-  print "Cost: ", compute_cost(best_schedule)
+    # print "People per tutorial:"
+    # count = tutorial_count(participant_tutorials)
+    # for key, value in count.iteritems():
+    #   print key, value
 
-  # print "People per tutorial:"
-  # count = tutorial_count(participant_tutorials)
-  # for key, value in count.iteritems():
-  #   print key, value
+    print ""
+    print "Participant sessions"
+    session_slot_lookup = {}
+    for j in range(schedule.shape[0]):
+      for i in range(schedule.shape[1]):
+        session_slot_lookup[schedule[j,i]] = j
 
-  print ""
-  print "Participant sessions"
-  session_slot_lookup = {}
-  for j in range(best_schedule.shape[0]):
-    for i in range(best_schedule.shape[1]):
-      session_slot_lookup[best_schedule[j,i]] = j
-
-  for participant in participant_tutorials:
-    slots = []
-    for tutorial in participant:
-      if tutorial in session_slot_lookup:
-        slot = session_slot_lookup[tutorial]
-        if slot is not None:
-          slots.append(slot)
-    print len(participant) - (len(set(slots))), participant
+    for participant in participant_tutorials:
+      slots = []
+      for tutorial in participant:
+        if tutorial in session_slot_lookup:
+          slot = session_slot_lookup[tutorial]
+          if slot is not None:
+            slots.append(slot)
+      print len(participant) - (len(set(slots))), participant
 
   
 
