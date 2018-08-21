@@ -159,17 +159,15 @@ class GaussianFit(object):
         return
 
 
-    def plot(self):
+    def get_plot(self):
         '''Plot the input data and the best fit.
         '''
         import matplotlib.pyplot as plt
-        plt.plot(self.x, self.y, 'b.', label="observed Gaussian")
-        plt.plot(self.x, self.yg, 'g-', label="calculated Gaussian")
-        plt.legend()
-        plt.xlabel("x")
-        plt.ylabel("y")
-        plt.show()
-        return
+        fig, ax = plt.subplots()
+        ax.plot(self.x, self.y, 'b.', label="observed Gaussian")
+        ax.plot(self.x, self.yg, 'g-', label="calculated Gaussian")
+        ax.legend()
+        return ax
 
 
     def refine(self):
