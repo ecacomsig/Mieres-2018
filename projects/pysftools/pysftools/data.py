@@ -1,3 +1,7 @@
+#!/usr/bin/env cctbx.python
+
+__author__ = "Adam Simpkin & Felix Simkovic"
+
 from cctbx import crystal
 from cctbx import miller
 from cctbx import sgtbx
@@ -12,23 +16,44 @@ class ReflectionData(object):
         self.reflection_data = reflection_file_reader.any_reflection_file(file_name=reflection_file)
         self.miller_arrays = self.reflection_data.as_miller_arrays()
         
-    def get(self, label):
+    def get(self, labels):
+        """
+
+        Parameters
+        ----------
+        labels : list
+            Column labels for the miller array you wish to return
+
+        Raises
+        ------
+        :exc: `RuntimeError`
+
+        """
         for m_a in self.miller_arrays:
-            if m_a.info().labels == label:
+            if m_a.info().labels == labels:
                 return m_a
+            else:
+                raise RuntimeError("{0} columns not found in {1}".format(labels, self.reflection_file))
 
-    def i2f(self, m_a, labels=['F', 'SIGF']):
+    def i2f(self, labels):
         """
 
-        :param m_a:
-        :param labels:
-        :return:
+        Parameters
+        ----------
+        labels : list
+            Column labels for the intensities you wish to convert e.g. ['I', 'SIGI']
+
+        Returns
+        -------
+
         """
-        assert not m_a.is_amplitude_array()
+
+        m_a = self.get(labels)
+
         assert m_a.is_intensity_array()
 
         array_info = miller.array_info()
-        array_info.labels = labels
+        array_info.labels = ['Fobs', 'Sigma-Fobs']
         amplitude_m_a = m_a.customized_copy(observation_type=observation_types.amplitude(),
                                             info=array_info)
 
@@ -36,21 +61,14 @@ class ReflectionData(object):
 
     def reindex(self, sg):
         """
+        Function to reindex space group
 
         :param sg:
         :return:
         """
         for m_a in self.miller_arrays:
-            array_info = m_a.info()
-            if not looks_like_r_free_flags_info(array_info):
-                new_space_group_info = sgtbx.space_group_info(symbol=sg)
-                new_crystal_symmetry = crystal.symmetry(unit_cell=m_a.unit_cell(),
-                                                        space_group_info=new_space_group_info,
-                                                        assert_is_compatible_unit_cell=False)
-                m_a = m_a.customized_copy(crystal_symmetry=new_crystal_symmetry,
-                                          info=array_info)
-
-        raise NotImplementedError
+            if not looks_like_r_free_flags_info(m_a.info()):
+                m_a.change_symmetry(sg)
 
     def checkhkl(self):
         """
