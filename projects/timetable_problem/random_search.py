@@ -85,14 +85,13 @@ if __name__ == '__main__':
   participant_tutorials = read_tutorial_file("data/timetable_selection.txt")
   participant_tutorials, tutorial_index = filter_tutorials(participant_tutorials, 15)
   n_participants = len(participant_tutorials)
-  print participant_tutorials
 
   compute_cost = CostFunction(participant_tutorials)
 
   min_cost = None
   best_schedule = None
   try:
-    for i in range(1000000):
+    for num_iter in range(1000000):
       schedule = gen_random_schedule(tutorial_index, n_slots, n_sessions)
       cost = compute_cost(schedule)
       if best_schedule is None or cost < min_cost:
@@ -103,6 +102,8 @@ if __name__ == '__main__':
         break
   except KeyboardInterrupt:
     print ""
+
+  print "Num iterations: ", num_iter
 
   best_schedule = sort_schedule(best_schedule)
   print ""
@@ -131,4 +132,5 @@ if __name__ == '__main__':
           slots.append(slot)
     print len(participant) - (len(set(slots))), participant
 
+  
 
