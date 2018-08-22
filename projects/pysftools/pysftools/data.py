@@ -21,6 +21,9 @@ class ReflectionData(object):
                 return m_a
         raise RuntimeError("{} columns not found in {}".format(labels, self.reflection_file))
 
+    def delete(self, labels):
+        self.miller_arrays = [m_a for m_a in self.miller_arrays if m_a.info().labels != labels]
+
     def i2f(self, labels):
         m_a = self.get(labels)
         if not m_a.is_intensity_array():
@@ -34,6 +37,20 @@ class ReflectionData(object):
         for m_a in self.miller_arrays:
             if not looks_like_r_free_flags_info(m_a.info()):
                 m_a.change_symmetry(sg)
+
+    def rfree(self, override=False):
+        if not override:
+            for m_a in self.miller_arrays:
+                if looks_like_r_free_flags_info(m_a.info()):
+                    raise RuntimeError("R-free column already found in {0}. Set override to true to generate a new"
+                                       "R-free column.")
+
+        for m_a in self.miller_arrays:
+            if looks_like_r_free_flags_info(m_a.info()):
+                self.delete(m_a.info().labels)
+
+        rfree_m_a = self.miller_arrays[0].generate_r_free_flags(format='ccp4')
+        self.miller_arrays['FreeR_flag'] = rfree_m_a
 
     def checkhkl(self):
         def unique_reflections(m_a):
@@ -52,4 +69,8 @@ class ReflectionData(object):
 
     @property
     def miller_arrays(self):
-        return self.reflection_data.as_miller_arrays()
+        m_as = self.reflection_data.as_miller_arrays()
+        d = {}
+        for m_a in m_as:
+            d[m_a.info().labels] = m_a
+        return d
