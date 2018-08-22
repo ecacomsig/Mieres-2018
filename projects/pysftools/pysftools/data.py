@@ -36,6 +36,9 @@ class ReflectionData(object):
                 return m_a
         raise RuntimeError("{} columns not found in {}".format(labels, self.reflection_file))
 
+    def delete(self, labels):
+        self.miller_arrays = [m_a for m_a in self.miller_arrays if m_a.info().labels != labels]
+
     def i2f(self, labels):
         """Intensities to amplitudes
 
@@ -88,6 +91,20 @@ class ReflectionData(object):
         for m_a in self.miller_arrays[1:]:
             dataset.add_miller_array(m_a, m_a.info().labels[0])
         dataset.mtz_object().write(file_name=fname)
+
+    def rfree(self, override=False):
+        if not override:
+            for m_a in self.miller_arrays:
+                if looks_like_r_free_flags_info(m_a.info()):
+                    raise RuntimeError("R-free column already found in {0}. Set override to true to generate a new"
+                                       "R-free column.")
+
+        for m_a in self.miller_arrays:
+            if looks_like_r_free_flags_info(m_a.info()):
+                self.delete(m_a.info().labels)
+
+        rfree_m_a = self.miller_arrays[0].generate_r_free_flags(format='ccp4')
+        self.miller_arrays['FreeR_flag'] = rfree_m_a
 
     def checkhkl(self):
         """Print a summary
