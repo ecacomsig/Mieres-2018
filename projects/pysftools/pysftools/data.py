@@ -1,4 +1,4 @@
-
+import collections
 from cctbx import crystal
 from cctbx import miller
 from cctbx import sgtbx
@@ -14,12 +14,46 @@ class ReflectionData(object):
         self.miller_arrays = self.reflection_data.as_miller_arrays()
 
     def get(self, labels):
+        """Get the :obj:`cctbx.miller.array` given a ``label``
+
+        Parameters
+        ----------
+        labels : list, tuple
+           A :obj:`list` or :obj:`tuple` of labels
+
+        Returns
+        -------
+        :obj:`cctbx.miller.array`
+
+        Raises
+        ------
+        :exc:`RuntimeError`
+           Columns not found in MTZ
+
+        """
         for m_a in self.miller_arrays:
             if m_a.info().labels == labels:
                 return m_a
         raise RuntimeError("{} columns not found in {}".format(labels, self.reflection_file))
 
     def i2f(self, labels):
+        """Intensities to amplitudes
+
+        Parameters
+        ----------
+        labels : list, tuple
+           A :obj:`list` or :obj:`tuple` of labels
+
+        Returns
+        -------
+        :obj:`cctbx.miller.array`
+
+        Raises
+        ------
+        :exc:`ValueError`
+           Array is not an intensity array 
+
+        """
         m_a = self.get(labels)
         if not m_a.is_intensity_array():
             raise ValueError('Array is not an intensity array')
@@ -34,6 +68,19 @@ class ReflectionData(object):
                 m_a.change_symmetry(sg)
     
     def write(self, fname):
+        """Write the current data to a MTZ file
+
+        Parameters
+        ----------
+        fname : str
+           The file name to write the data to
+
+        Raises
+        ------
+        :exc:`ValueError`
+           Need more than 0 Miller array(s) 
+
+        """
         if len(self.miller_arrays) < 1:
             raise ValueError('Need more than 0 Miller array(s)')
         base = self.miller_arrays[0]
@@ -41,6 +88,24 @@ class ReflectionData(object):
         for m_a in self.miller_arrays[1:]:
             dataset.add_miller_array(m_a, m_a.info().labels[0])
         dataset.mtz_object().write(file_name=fname)
+
+    def checkhkl(self):
+        """Print a summary
+
+        Raises
+        ------
+        :exc:`NotImplementedError`
+
+        """
+
+        raise NotImplementedError
+        #  stats = collections.defaultdict(dict)
+        #  for m_a in self.miller_arrays:
+        #      labels = tuple(m_a.info().labels)
+        #      stats[labels]['minimum'] = min(m_a.data())
+        #      stats[labels]['maximum'] = max(m_a.data())
+        #      stats[labels]['average'] = sum(m_a.data()) / len(m_a.data())
+        #      stats[labels]['resmax'],  stats[labels]['resmin'] = m_a.resolution_range()
 
     @property
     def labels(self):
