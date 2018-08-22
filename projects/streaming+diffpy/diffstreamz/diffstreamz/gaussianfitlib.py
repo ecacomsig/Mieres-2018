@@ -183,8 +183,7 @@ class GaussianFit(object):
 
 # end of class GaussianFit
 
-# Define functions that are used in gaussian fitting workflows
-
+# Define functions that are used in the gaussian fitting pipeline
 plt.ion()
 fig = plt.figure()
 ax1 = fig.add_subplot(211)

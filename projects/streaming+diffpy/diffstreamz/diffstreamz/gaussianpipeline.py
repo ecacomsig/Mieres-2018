@@ -4,8 +4,7 @@ import matplotlib.pyplot as plt
 
 from diffstreamz.gaussianfitlib import generate_data, plot_data, fit_data, plot_fit
 
-#Define the pipeline network
-
+#Define the pipeline for gaussian fitting
 def pipeline():
     pipeline = Stream()
 
