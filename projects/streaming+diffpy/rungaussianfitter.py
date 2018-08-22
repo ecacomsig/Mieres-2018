@@ -6,7 +6,7 @@ from diffstreamz.gaussianpipeline import pipeline
 #Define the pipeline
 pipeline = pipeline()
 
-#Run data through pipeline
+#Emit data into pipeline source node
 def main():
     for i in range(10):
         try:
@@ -23,9 +23,7 @@ gvkwargs = dict(source_node=True,
                 node_style=node_style,
                 force_draw=True)
 
-plt.pause(.1)
-
-#Run pipeline
+#Run pipeline and visualisation
 if __name__ == "__main__":
     run_vis(pipeline, **gvkwargs)
     main()
