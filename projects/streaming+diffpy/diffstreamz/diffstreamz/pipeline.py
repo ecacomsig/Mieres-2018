@@ -8,6 +8,11 @@ from gaussianfit import GaussianFit
 source = Stream()
 
 
+plt.ion()
+fig = plt.figure()
+ax1 = fig.add_subplot(211)
+ax2 = fig.add_subplot(212)
+ 
 def generate_data(x0):
     x = np.arange(-20, 20, 0.1)
     sig = 1.5
@@ -19,11 +24,12 @@ def generate_data(x0):
 
 def plot_data(dat):
     x, y = dat[0], dat[1]
-    plt.ion(); plt.clf()
-    plt.plot(x, y, 'x')
-    plt.title('Two peaks simulated')
-    plt.show()
-    plt.pause(1)
+    #f1 = plt.figure(1)
+    #plt.ion(); plt.clf()
+    ax1.cla()
+    line1 = ax1.plot(x, y, 'x')
+    fig.canvas.draw()
+    plt.pause(0.1)
 
 def fit_data(dat):
     x, y = dat[0], dat[1]
@@ -33,8 +39,12 @@ def fit_data(dat):
     return gfit
 
 def plot_fit(gfit):
-    gfit.plot()
-    plt.pause(1)
+    ax2.cla()
+    l2a = ax2.plot(gfit.x, gfit.y, 'b.', label="observed Gaussian")
+    l2b = ax2.plot(gfit.x, gfit.yg, 'g-', label="calculated Gaussian")
+    ax2.legend()
+    fig.canvas.draw()
+    plt.pause(0.1)
 
 
 b = source.map(generate_data)
