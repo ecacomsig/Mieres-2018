@@ -33,11 +33,11 @@ if __name__ == '__main__':
   unit_cell = intensities.unit_cell()
   D = [unit_cell.d(h) for h in intensities.indices()]
   D2 = [1.0 / (d*d) for d in D]
- 
+
   # Create the resolution bins
   print "Resolution Bins"
   min_D2, max_D2 = min(D2), max(D2)
-  nbins = 10
+  nbins = 1
   bin_range = max_D2 - min_D2
   bin_size = bin_range / nbins
   bins = []
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     sum_x2 = reflection_sums[h].sum_x2
     n = reflection_sums[h].n
     mean = sum_x / n
-    var = sum_x2 / n - (sum_x)**2 / n**2
+    var = (sum_x2 - (sum_x)**2 / n) / (n-1)
     index = get_bin_index(h)
     bin_data[index].mean.append(mean)
     bin_data[index].var.append(var)
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     n = len(mean)
     mean_of_means = sum(mean) / n
     sigma_e = sum(var) / n
-    sigma_y = sum([(m - mean_of_means)**2 for m in mean]) / n
+    sigma_y = sum([(m - mean_of_means)**2 for m in mean]) / (n-1)
     cchalf = (sigma_y - 0.5*sigma_e)/(sigma_y + 0.5*sigma_e)
     return cchalf
 
@@ -129,6 +129,7 @@ if __name__ == '__main__':
       mean = bin_data[i].mean
       var = bin_data[i].var
       n = len(mean)
+      # print mean, var
       cchalf = compute_cchalf(mean, var)
       #print cchalf, n
       mean_cchalf += n*cchalf
@@ -139,6 +140,8 @@ if __name__ == '__main__':
   mean_cchalf = compute_mean_cchalf_in_bins(bin_data)
   cchalf_overall = mean_cchalf
   print ""
+  print "# Reflections: ", len(D)
+  print "# Unique: ", len(reflection_sums.keys())
   print "CC 1/2 Overall: ", mean_cchalf
 
   # Compute CC1/2 minus each batch
@@ -163,7 +166,7 @@ if __name__ == '__main__':
       
       if n > 0:
         mean = sum_x / n
-        var = sum_x2 / n - (sum_x)**2 / n**2
+        var = (sum_x2 - (sum_x)**2 / n) / (n-1)
         index = get_bin_index(h)
         bin_data[index].mean.append(mean)
         bin_data[index].var.append(var)
