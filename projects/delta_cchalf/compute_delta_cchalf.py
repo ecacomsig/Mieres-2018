@@ -238,7 +238,7 @@ class PerImageCChalfStatistics(object):
       if n > 1:
         mean = sum_x / n
         var = (sum_x2 - (sum_x)**2 / n) / (n-1)
-        var = var / (0.5*n)
+        var = var / n
         index = binner.index(h)
         bin_data[index].mean.append(mean)
         bin_data[index].var.append(var)
